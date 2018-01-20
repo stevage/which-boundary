@@ -1,6 +1,6 @@
 ## Which-boundary
 
-Look up which Australian Local Government Area (LGA) a given coordinate (as long/lat pair) is inside.
+Look up which Australian Local Government Area (LGA) a given coordinate (as long/lat pair) is inside based on Australian Bureau of Statistics data
 
 ```
 var which=require('which-boundary');
@@ -16,8 +16,8 @@ Pre-requisites:
 * topojson (contains geo2topo)
 
 ```
-wget -O 1270055003_lga_2016_aust_shape.zip 'http://www.abs.gov.au/ausstats/subscriber.nsf/log?openagent&1270055003_lga_2016_aust_shape.zip&1270.0.55.003&Data%20Cubes&6A6A6E8944937276CA25802C00142DD2&0&July%202016&13.09.2016&Latest'
-unzip 1270055003_lga_2016_aust_shape.zip
-ogr2ogr -f GeoJSON lgas.geojson LGA_2016_AUST.shp
-geo2topo -q 1e4 lgas.geojson > lgas.topojson
+wget -O 1270055003_lga_2017_aust_shp.zip 'http://www.ausstats.abs.gov.au/ausstats/subscriber.nsf/0/F11A76BAD13A9F8FCA25816B00135BCA/$File/1270055003_lga_2017_aust_shp.zip'
+unzip 1270055003_lga_2017_aust_shp.zip
+ogr2ogr -f GeoJSON lgas.geojson LGA_2017_AUST.shp
+geo2topo -q 1e4 lgas.geojson > lgas.topo.json
 ```
