@@ -1,6 +1,6 @@
 {
   "name": "which-boundary",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "",
   "main": "index.js",
   "repository": {
@@ -23,7 +23,8 @@
     "jest": "^23.6.0",
     "pbf": "^3.1.0",
     "shapefile": "^0.6.6"
-  }, "files": [
+  },
+  "files": [
     "data/elb.geobuf",
     "data/lga.geobuf",
     "index.js",
