@@ -6,7 +6,7 @@ const fs = require('fs');
 const boundarySets = {};
 const boundaryTypes = ['elb', 'lga'];
 boundaryTypes.forEach(type => {
-    const file = fs.readFileSync('data/' + type + '.geobuf');
+    const file = fs.readFileSync(__dirname + '/data/' + type + '.geobuf');
     boundarySets[type] = geobuf.decode(new Pbf(file));
 });
 
