@@ -8,11 +8,26 @@
     "url": "https://github.com/stevage/which-boundary"
   },
   "scripts": {
+    "test": "jest"
   },
   "author": "Steve Bennett <me@stevebennett.me> (http://stevebennett.me)",
   "license": "Apache-2.0",
   "dependencies": {
     "@turf/boolean-point-in-polygon": "^5.1.5",
+    "@turf/turf": "^5.1.6",
+    "geobuf": "^3.0.1",
     "topojson-client": "^3.0.0"
-  }
+  },
+  "devDependencies": {
+    "@turf/helpers": "^6.1.4",
+    "jest": "^23.6.0",
+    "pbf": "^3.1.0",
+    "shapefile": "^0.6.6"
+  }, "files": [
+    "data/elb.geobuf",
+    "data/lga.geobuf",
+    "index.js",
+    "index.test.js",
+    "make-elb.js"
+  ]
 }
