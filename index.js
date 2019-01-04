@@ -5,39 +5,82 @@ const fs = require('fs');
 
 const boundarySets = {};
 const boundaryTypes = ['elb', 'lga'];
-boundaryTypes.forEach(type => {
-    const file = fs.readFileSync(__dirname + '/data/' + type + '.geobuf');
-    boundarySets[type] = geobuf.decode(new Pbf(file));
-});
+const clipCache = {};
 
-module.exports.lookup = function lookup(boundaryType, lon, lat) {
-    let boundary = boundarySets[boundaryType].features
-        .find(f => f.geometry && booleanPointInPolygon([lon, lat], f.geometry));
-    if (boundary) {
-        const p = boundary.properties;
-        if (boundaryType === 'lga') {
-            return {
-                // TODO only store the properties we want to serve
-                name: p.LGA_NAME16,
-                abscode: p.LGA_CODE16,
-                state: p.STE_NAME16
-            };
-        } else if (boundaryType === 'elb') {
-            return {
-                name: p.NAME,
-                id: p.CE_PID,
-                state: p.STATE_PID
-            }
+function loadBoundaries(type) {
+    boundarySets[type] = readGeoBuf(`${__dirname}/data/${type}.geobuf`);
+}
+
+function readGeoBuf(filename) {
+    const file = fs.readFileSync(filename);
+    return geobuf.decode(new Pbf(file));
+}
+
+function findBoundary(features, lon, lat) {
+    return features.find(f => f.geometry && booleanPointInPolygon([lon, lat], f.geometry));
+}
+
+function cleanProps(props, boundaryType) {
+    if (boundaryType === 'lga') {
+        return {
+            // TODO only store the properties we want to serve
+            name: props.LGA_NAME16,
+            abscode: props.LGA_CODE16,
+            state: props.STE_NAME16
+        };
+    } else if (boundaryType === 'elb') {
+        // console.log(props);
+        return {
+            name: props.NAME,
+            id: props.CE_PID,
+            state: props.STATE_PID
         }
-    } else {
-        return false;
     }
 }
 
-module.exports.lgaByLonLat = function(lon, lat) {
-    return module.exports.lookup('lga', lon, lat);
+
+function lookup(boundaryType, lon, lat) {
+    if (!boundaryTypes[boundaryType]) {
+        loadBoundaries(boundaryType);
+    }
+    const boundary = findBoundary(boundarySets[boundaryType].features, lon, lat);
+    return boundary ? cleanProps(boundary.properties, boundaryType) : false;
+}
+
+function cacheClip(features, lonF, latF) {
+    clipCache[lonF] = clipCache[lonF] || {};
+    clipCache[lonF][latF] = features;
+}
+
+
+// "light" means don't cache anything, to minimise memory overhead.
+function lookupIndexed(boundaryType, lon, lat, light) {
+    function loadBoundaries() {
+        return readGeoBuf(`${__dirname}/clipped/${lonF}/${latF}/${boundaryType}.geobuf`).features;
+    }
+    function getCachedClip() {
+        if (!clipCache[lonF] || !clipCache[lonF][latF]) {
+            cacheClip(loadBoundaries(), lonF, latF);
+        }
+        return clipCache[lonF][latF];
+    }
+    const lonF = Math.floor(lon), 
+        latF = Math.floor(lat);
+    const features = light ? loadBoundaries() : getCachedClip();
+    const boundary = findBoundary(features, lon, lat);
+    return boundary ? cleanProps(boundary.properties, boundaryType) : false;
+}
+
+function lgaByLonLat(lon, lat) {
+    return lookup('lga', lon, lat);
 };
 
-module.exports.elbByLonLat = function(lon, lat) {
-    return module.exports.lookup('elb', lon, lat);
+function elbByLonLat(lon, lat, light = false) {
+    return lookupIndexed('elb', lon, lat, light);
+};
+
+module.exports = {
+    lookup,
+    lgaByLonLat,
+    elbByLonLat
 };

@@ -15,7 +15,9 @@
   "dependencies": {
     "@turf/boolean-point-in-polygon": "^5.1.5",
     "@turf/turf": "^5.1.6",
+    "fs-extra": "^7.0.1",
     "geobuf": "^3.0.1",
+    "threads": "^0.12.0",
     "topojson-client": "^3.0.0"
   },
   "devDependencies": {
@@ -25,8 +27,8 @@
     "shapefile": "^0.6.6"
   },
   "files": [
-    "data/elb.geobuf",
     "data/lga.geobuf",
+    "clipped/**/*.geobuf",
     "index.js",
     "index.test.js",
     "make-elb.js"
